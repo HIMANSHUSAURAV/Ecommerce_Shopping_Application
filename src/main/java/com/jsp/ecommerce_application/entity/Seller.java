@@ -3,6 +3,7 @@ package com.jsp.ecommerce_application.entity;
 import jakarta.persistence.Entity;
 
 @Entity
-public class Seller {
+public class Seller extends User {
 
+	
 }

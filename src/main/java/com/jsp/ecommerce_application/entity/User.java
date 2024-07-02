@@ -1,15 +1,12 @@
 package com.jsp.ecommerce_application.entity;
 
-import java.util.List;
-
-import org.hibernate.annotations.GenericGenerator;
-
 import com.jsp.ecommerce_application.enums.UserRole;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
@@ -29,15 +26,17 @@ import lombok.Setter;
 public class User {
 
 	@Id
-	@GeneratedValue(generator = "custom")
-	private String userId;
-	private String username;
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private int userId;
+	private String userName;
 	private String email;
 	private String password;
-	@Enumerated(EnumType.STRING)
-	private List<UserRole> roles;
 	private boolean isEmailVerified;
 	private boolean isDeleted;
+	@Enumerated(EnumType.STRING)
+	private UserRole userRole;
+
+ }
 
 
-}
+
