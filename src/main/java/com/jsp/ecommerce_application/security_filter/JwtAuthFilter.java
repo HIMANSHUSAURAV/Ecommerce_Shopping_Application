@@ -26,13 +26,12 @@ import lombok.AllArgsConstructor;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
 	private final JWTService jwtService;
-	  private final JwtExceptionHandler exceptionHandler;
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 
-		
+
 		String token = request.getHeader("Authorization");
 
 		if (token != null) {
@@ -50,33 +49,30 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
 					UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
 							username, null, List.of(new SimpleGrantedAuthority(userRole.name().toString())));
-					
+
 					usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetails(request));
 					SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
 
 
 				}
 			} catch (JwtException ex) {
+
+				TokenExceptionHandler.handleException( HttpStatus.UNAUTHORIZED.value(), response ,"the Invalid Jwt token");
+
 				
-				exceptionHandler.handleException((response,
-                        HttpStatus.UNAUTHORIZED.value(),
-                        "Failed to authenticate",
-                        "Invalid token");
 			}
-			
+
 
 			try {
 
 				Date expailationDate = jwtService.expailationDate(token);
 
 			} catch (ExpiredJwtException ex) {
-				ex.printStackTrace();
-				// throw new JwtExpiredException("any message");
+				TokenExceptionHandler.handleException( HttpStatus.UNAUTHORIZED.value(), response ,"the token already expired");
 
 			}
-			System.out.println(token);
 		}
-
+System.out.println("auth with filter chain");
 		filterChain.doFilter(request, response);
 	}
 
