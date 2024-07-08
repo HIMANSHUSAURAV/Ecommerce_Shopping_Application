@@ -3,11 +3,14 @@ package com.jsp.ecommerce_application.security;
 import java.security.Key;
 import java.util.Date;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.jsp.ecommerce_application.entity.RefreshToken;
 import com.jsp.ecommerce_application.enums.UserRole;
+import com.jsp.ecommerce_application.repo.RefreshTokenRepo;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -16,56 +19,71 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
 @Service
-public class JWTService {
+public class JwtService {
 
-	   @Value("${application.jwt.secret}")
-	    private String secret;
-	   
-	   public static final String ROLE = "role";
+	@Value("${application.jwt.secret}")
+	private String secret;
 	
-//	private String secret = "WyLOAJB4mh3KZ++NY2c33XGDIApyhQdQKgYVv2BJcnplIHt9fDG7IBqJD/1PJQgmwiMBYzO/wBL4nEveMeyKhA==";
+	private RefreshTokenRepo refreshTokenRepo;
+	
+	private static final String ROLE ="role";
+	
 
-	public String createJWTTocken( String username , long expirationDurationInMillis , String role  ) {
-		return Jwts.builder()
-				.setClaims(Map.of(ROLE, role))
-				.setSubject(username)
-				.setIssuedAt( new Date( System.currentTimeMillis()))
-				.setExpiration(new Date( System.currentTimeMillis()+expirationDurationInMillis))
-				.signWith(getSignatureKey(),SignatureAlgorithm.HS512)
-				.compact();
-
+	public JwtService(RefreshTokenRepo refreshTokenRepo) {
+		super();
+		this.refreshTokenRepo = refreshTokenRepo;
 	}
 
-	private  Key getSignatureKey() {
-		return Keys.hmacShaKeyFor( Decoders.BASE64.decode(secret));
-
-	}
-
-	private  Claims	praseJWT( String token ) {
-		return Jwts.parserBuilder()
-				.setSigningKey(getSignatureKey())
+	public String createJwtToken(String userName,long expirationTimeInMillies,String role ) {
+		return Jwts.builder().setClaims(Map.of(ROLE,role))
+				
+		 .setSubject(userName)
+		 .setIssuedAt(new Date(System.currentTimeMillis()))
+		 .setExpiration(new Date(System.currentTimeMillis()+expirationTimeInMillies))
+		 
+		 .signWith(getSignInKey(), SignatureAlgorithm.HS512)
+		 .compact();
+		 
+		 }
+	 
+	 private Key getSignInKey() {
+		 return Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
+	 }
+	 
+	 private Claims parseJwtToken(String token) {
+		return Jwts.parserBuilder()	
+				.setSigningKey(getSignInKey())
 				.build()
 				.parseClaimsJws(token)
 				.getBody();
+	 }
+	 
+	 public String extractUserName(String token) {
+		 return parseJwtToken(token).getSubject();
+	 }
+	 
+	 public Date extractIssuedDate(String token) {
+		 return parseJwtToken(token).getIssuedAt();
+	 }
+	 
+	 public Date extractExpireDate(String token) {
+		return parseJwtToken(token).getExpiration();
+	 }
+
+
+	public String extractUserRole(String token) {
+		// TODO Auto-generated method stub
+		return parseJwtToken(token).get(ROLE,String.class);
 	}
 
-	
-	public  UserRole  extractRole(String token) {
-		return UserRole.valueOf(praseJWT(token).get(ROLE, String.class));
+	public boolean isTokenValid(String token) {
+		// TODO Auto-generated method stub
+		Optional<RefreshToken> refreshToken = refreshTokenRepo.findByRefreshToken(token);
+		RefreshToken refreshToken1=refreshToken.get();
+		return parseJwtToken(token).getExpiration()
+				.after(new Date()) && refreshToken1 != null && !refreshToken1.isBlocked();
 	}
 
-	
-	public String  extractUsername( String token ) {
-		return praseJWT(token).getSubject();
-	}
-
-	public Date  issuedDate( String token) {  
-		return praseJWT(token).getIssuedAt();
-	}
-
-	public Date expailationDate( String token) {
-		return praseJWT(token).getExpiration();
-	}
 
 }
 

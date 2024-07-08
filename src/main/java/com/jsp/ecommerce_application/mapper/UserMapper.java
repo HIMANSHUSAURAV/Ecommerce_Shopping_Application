@@ -23,6 +23,7 @@ public class UserMapper {
 				.userName(user.getUserName())
 				.email(user.getEmail())
 				.userRole(user.getUserRole())
+				.isEmailVerified(user.isEmailVerified())
 				.build();
 	}
 }

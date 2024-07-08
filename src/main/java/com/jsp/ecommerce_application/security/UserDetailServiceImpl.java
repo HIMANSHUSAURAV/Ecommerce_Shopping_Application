@@ -13,15 +13,18 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class UserDetailServiceImpl implements UserDetailsService{
 
-	private final UserRepository repository;
-
+private UserRepository userRepository;
+	
 	@Override
 	public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
 
-		return repository.findByUserName(userName)
-				.map(user -> new UserDetailImpl(user))
-				.orElseThrow(() -> new UsernameNotFoundException("aunthentication failed"));
+	return	userRepository.findByUserName(userName)
+			.map(UserDetailImpl::new)
+			.orElseThrow(()-> new UsernameNotFoundException("Authentication failed"));
+			
+			
 	}
+
 
 
 }

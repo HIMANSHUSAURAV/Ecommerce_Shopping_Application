@@ -10,17 +10,21 @@ import com.jsp.ecommerce_application.responsedto.AuthResponse;
 import com.jsp.ecommerce_application.responsedto.UserResponse;
 import com.jsp.ecommerce_application.utility.ResponseStructure;
 
-import jakarta.validation.Valid;
-
 public interface UserService {
 
 	ResponseEntity<ResponseStructure<UserResponse>> saveUser(UserRequest userRequest, UserRole seller);
 
 	ResponseEntity<ResponseStructure<UserResponse>> verifyOtp(OtpVerificationRequest otpVerificationRequest);
  
-	ResponseEntity<ResponseStructure<AuthResponse>> login(AuthRequest authRequest);
+	ResponseEntity<ResponseStructure<AuthResponse>> login(AuthRequest authRequest, String refreshToken, String accessToken);
 
+	ResponseEntity<ResponseStructure<AuthResponse>> refreshlogin(String refreshToken);
 
-	
+	ResponseEntity<ResponseStructure<AuthResponse>> logout(String refreshToken, String accessToken);
+
+	ResponseEntity<com.jsp.ecommerce_application.utility.SimpleStructure> logoutFromOtherDevices(String refreshToken,
+			String accessToken);
+
+	ResponseEntity<com.jsp.ecommerce_application.utility.SimpleStructure> logoutFromAllDevices(String accessToken);
 
 }

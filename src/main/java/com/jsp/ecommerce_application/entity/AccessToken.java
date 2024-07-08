@@ -26,6 +26,7 @@ public class AccessToken {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int tokenId;
 	private String token;
+	private boolean isBlocked;
 	private LocalDateTime expiration;
 	
 	

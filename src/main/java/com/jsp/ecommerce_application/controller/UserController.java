@@ -1,6 +1,8 @@
 package com.jsp.ecommerce_application.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,6 +17,7 @@ import com.jsp.ecommerce_application.responsedto.AuthResponse;
 import com.jsp.ecommerce_application.responsedto.UserResponse;
 import com.jsp.ecommerce_application.service.UserService;
 import com.jsp.ecommerce_application.utility.ResponseStructure;
+import com.jsp.ecommerce_application.utility.SimpleStructure;
 
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -44,16 +47,48 @@ public class UserController {
 	
 	
 	@PostMapping("/login")
-	public ResponseEntity<ResponseStructure<AuthResponse>> login(@RequestBody AuthRequest authRequest){
-		return userService.login(authRequest);
+	public ResponseEntity<ResponseStructure<AuthResponse>> login(@RequestBody AuthRequest authRequest,
+            @CookieValue(name = "rt", required = false) String refreshToken,
+            @CookieValue(name = "at", required = false) String accessToken) {
+		return userService.login(authRequest, refreshToken, accessToken);
 		
 	}
 	
-	@GetMapping( "/test")
+	@PostMapping("/refreshLogin")
+	public ResponseEntity<ResponseStructure<AuthResponse>> refreshLogin(
+			@CookieValue(value = "rt", required = false) String refreshToken) {
+		return userService.refreshlogin(refreshToken);
+
+	}
+
+	
+	@GetMapping( "/test") 
 	public String  test() {
 		return "Success";
 	}
 
+
+	@PostMapping("/logout")
+	public ResponseEntity<ResponseStructure<AuthResponse>> logout(
+			@CookieValue(value = "rt", required = false) String refreshToken,
+			@CookieValue(value = "at", required = false) String accessToken) {
+		return userService.logout(refreshToken, accessToken);
+
+	}
+
+	@PostMapping("/logoutFromOtherDevices")
+
+	public ResponseEntity<SimpleStructure> logoutFromOtherDevices(
+			@CookieValue(value = "rt", required = false) String refreshToken,
+			@CookieValue(value = "at", required = false) String accessToken) {
+		return userService.logoutFromOtherDevices(refreshToken, accessToken);
+	}
+
+	@PostMapping("/logoutAll")
+	public ResponseEntity<SimpleStructure> logoutFromAllDevices(@CookieValue(value="at",required=false) String accessToken) {
+		return userService.logoutFromAllDevices(accessToken);
+
+	}
 
 }
 

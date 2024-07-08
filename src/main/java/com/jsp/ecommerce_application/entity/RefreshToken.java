@@ -24,9 +24,11 @@ public class RefreshToken {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int tokenId;
-	private String token;
+	private int refreshTokenId;
+	private String refreshToken;
 	private LocalDateTime expiration;
+	private boolean isBlocked;
+
 	
 	   @ManyToOne
 	    private User user;
