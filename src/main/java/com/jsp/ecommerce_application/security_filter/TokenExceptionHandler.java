@@ -12,13 +12,13 @@ import io.jsonwebtoken.io.IOException;
 import jakarta.servlet.http.HttpServletResponse;
 
 @Component
-public class JwtExceptionHandler {
+public class TokenExceptionHandler {
 
-	public static void handleException(HttpServletResponse response, String message) throws IOException
+	public static void handleException(int status ,HttpServletResponse response, String rootcause) throws IOException
 	, StreamWriteException, DatabindException, java.io.IOException{
 		
 		response.setStatus(HttpStatus.UNAUTHORIZED.value()); // all are JSon object
-		ErrorStructure error = new ErrorStructure<>()
+		ErrorStructure<String> error = new ErrorStructure<String>()
 				.setStatus(HttpStatus.UNAUTHORIZED.value())
 				.setMessage("failed to aunthenticate")
 				.setRootcause("the token is already expired");
